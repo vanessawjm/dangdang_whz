@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.baizhi.dao.BookDao">
+  <!-- 复用sql -->
+	<sql id="selectsql">
+		id,name,author,cover,press,press_date as pressDate,edition,print_date as printDate,impression,isbn,word_num as wordNum,
+		page_num as pageNum,sizes,paper,pack,price,dprice,create_date as createDate,editor_recommend as editorRecommend,
+		content_abstract as contentAbstract,author_abstract as authorAbstract,director,media_commentary as mediaCommentary,
+		category_id as categoryId,sale,stock
+	</sql>
+
+	<!-- 后台：查询所有的图书——展示所有 --> 
+	<select id="selectAllBook" resultType="com.baizhi.entity.Book">
+		select <include refid="selectsql"/>
+		from dd_book
+	</select>
+	
+	<!-- 后台：添加图书 -->
+	<insert id="addBook" parameterType="com.baizhi.entity.Book">
+		insert into dd_book values(#{id},#{name},#{author},#{cover},#{press},#{pressDate},#{edition},#{printDate},#{impression},#{isbn},#{wordNum},#{pageNum},#{sizes},#{paper},#{pack},#{price},#{dprice},#{createDate},#{editorRecommend},#{contentAbstract},#{authorAbstract},#{director},#{mediaCommentary},#{sale},#{stock},#{categoryId})
+	</insert>
+
+	<!-- 后台：根据id查一本图书 -->
+	<select id="selectBookById" resultType="com.baizhi.entity.Book">
+		select <include refid="selectsql"/>
+		from dd_book where id=#{id}
+	</select>
+	
+	<!-- 后台：修改图书   不修改销量sale -->
+	<update id="updateBook" parameterType="com.baizhi.entity.Book">
+		update dd_book set name=#{name},author=#{author},press=#{press},press_date=#{pressDate},edition=#{edition},
+						print_date=#{printDate},impression=#{impression},isbn=#{isbn},word_num=#{wordNum},page_num=#{pageNum},sizes=#{sizes},
+						paper=#{paper},pack=#{pack},price=#{price},dprice=#{dprice},editor_recommend=#{editorRecommend},
+						content_abstract=#{contentAbstract},author_abstract=#{authorAbstract},director=#{director},media_commentary=#{mediaCommentary},
+						category_id=#{categoryId},stock=#{stock}
+						<if test="cover != null">,cover=#{cover}</if>
+		where id=#{id}
+	</update>
+	
+	<!-- 后台：删除图书 -->
+	<delete id="deleteBook" parameterType="String">
+		delete from dd_book where id=#{id}
+	</delete>
+	
+	<!-- 后台：模糊查询 -->
+	<select id="selectBookByKey" resultType="com.baizhi.entity.Book">
+		select <include refid="selectsql"/>
+		from dd_book
+		<where>
+			<if test="key == 'name'">
+				name like '%'||#{content}||'%'
+			</if>
+			<if test="key == 'author'">
+				author like '%'||#{content}||'%'
+				
+			</if>
+			<if test="key == 'press'">
+				press like '%'||#{content}||'%'
+			</if>
+		</where>
+	</select>
+	
+	<!-- 后台：查询某二级分类下的图书数量——删除二级分类时使用 -->
+	<select id="selectBookNumBySid" parameterType="String" resultType="Integer">
+		select count(id) from dd_book where category_id = #{id}
+	</select>
+	
+	
+	<!-- 前台：查询热销的图书（8本） -->
+	<select id="selectSales" resultType="com.baizhi.entity.Book">
+		select b.*,rownum
+		from (select <include refid="selectsql"/> from dd_book where sale!=0 order by sale desc) b
+		where rownum between 1 and 8
+	</select>
+
+	<!-- 前台：查询新书上架（8本） -->
+	<select id="selectNews" resultType="com.baizhi.entity.Book">
+		select b.*,rownum
+		from (select <include refid="selectsql"/> from dd_book order by create_date desc) b
+		where rownum between 1 and 8
+	</select>
+	
+	<!-- 前台：查询新书热卖（10本） -->
+	<select id="selectNewBoards" resultType="com.baizhi.entity.Book">
+		select b.*,rownum
+		from (select <include refid="selectsql"/> from dd_book where sale!=0 order by create_date desc,sale desc) b
+		where rownum between 1 and 10
+	</select>
+	
+	
+	<!-- 前台：根据所点击的分类查询图书 -->
+	<select id="selectBook" parameterType="String" resultType="com.baizhi.entity.Book">
+		select 
+			b.id,b.name,b.author,b.cover,b.press,b.press_date as pressDate,b.edition,b.print_date as printDate,b.impression,b.isbn,
+			b.word_num as wordNum,b.page_num as pageNum,b.sizes,b.paper,b.pack,b.price,b.dprice,b.create_date as createDate,
+			b.editor_recommend as editorRecommend,b.content_abstract as contentAbstract,b.author_abstract as authorAbstract,b.director,
+			b.media_commentary as mediaCommentary,b.category_id as categoryId,b.sale,b.stock
+		from dd_book b left join dd_category c on b.category_id = c.id
+		<where>
+			<choose>
+				<when test="sid == null || sid==''">
+					c.parent_id = #{fid}
+				</when>
+				<otherwise>
+					c.id = #{sid}
+				</otherwise>
+			</choose>
+		</where>	
+	</select>
+	<!-- 前台：修改图书的销量和库存 -->
+	<update id="updateBookSaleAndStock">
+		update dd_book set sale=sale+#{count},stock=stock-#{count} where id=#{id}
+	</update>
+</mapper>

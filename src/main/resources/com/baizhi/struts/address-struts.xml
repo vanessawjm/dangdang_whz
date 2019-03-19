@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 2.1.7//EN" "struts-2.1.7.dtd" >
+<struts>
+	<package name="address" extends="struts-default" namespace="/address">
+		<interceptors>
+			<interceptor name="UserInterceptor" class="com.baizhi.interceptor.UserInterceptor"/>
+			<interceptor-stack name="userStack">
+				<interceptor-ref name="defaultStack"></interceptor-ref>
+				<interceptor-ref name="UserInterceptor"></interceptor-ref>
+			</interceptor-stack>
+		</interceptors>
+		
+		<global-results>
+			<result name="userLogin">/front/user/login_form.jsp</result>
+			<result name="userActive" type="redirectAction">
+				<param name="namespace">/user</param>
+				<param name="actionName">sendEmailCode</param>
+			</result>
+		</global-results>
+
+	
+		<!-- 前台：查询某用户的所有地址 -->
+		<action name="selectAddresses" class="com.baizhi.action.AddressAction" method="selectAddresses">
+			<interceptor-ref name="userStack"/>
+			<result name="success">/front/order/address_form.jsp</result>
+		</action>
+		<!-- 前台：查询选中的地址 -->
+		<action name="selectAddressById" class="com.baizhi.action.AddressAction" method="selectAddressById">
+			<result name="success">/front/order/address_form.jsp</result>
+		</action>
+	</package>
+</struts>

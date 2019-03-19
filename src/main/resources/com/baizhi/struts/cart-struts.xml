@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 2.1.7//EN" "struts-2.1.7.dtd" >
+<struts>
+	<package name="cart" extends="struts-default" namespace="/cart">
+	
+		<!-- 添加购物车 -->
+		<action name="addCart" class="com.baizhi.action.CartAction" method="addCart">
+			<result name="success" type="redirect">/front/cart/cart_list.jsp</result>
+		</action>
+		
+		<!-- 删除购物车 -->
+		<action name="deleteCart" class="com.baizhi.action.CartAction" method="deleteCart">
+			<result name="success" type="redirect">/front/cart/cart_list.jsp</result>
+		</action>
+		
+		<!-- 修改数量 -->
+		<action name="updateCart" class="com.baizhi.action.CartAction" method="updateCart">
+			<result name="success" type="redirect">/front/cart/cart_list.jsp</result>
+		</action>
+		
+	</package>	
+	
+
+</struts>

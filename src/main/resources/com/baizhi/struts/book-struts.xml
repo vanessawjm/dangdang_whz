@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 2.1.7//EN" "struts-2.1.7.dtd" >
+<struts>
+	<package name="book" extends="struts-default" namespace="/book">
+		<interceptors>
+			<interceptor name="AdminInterceptor" class="com.baizhi.interceptor.AdminInterceptor"/>
+			<interceptor-stack name="adminStack">
+				<interceptor-ref name="defaultStack"></interceptor-ref>
+				<interceptor-ref name="AdminInterceptor"></interceptor-ref>
+			</interceptor-stack>
+		</interceptors>
+		
+		<global-results>
+			<!-- <result name="adminLogin">/back/login.jsp</result> -->
+			<result name="adminLogin">/index.jsp</result>
+		</global-results>
+	<!-- ===========================后台============================= -->
+		<!-- 查询所有的图书-->	
+		<action name="selectAllBook" class="com.baizhi.action.BookAction" method="selectAllBook">
+			<interceptor-ref name="adminStack"/>
+			<result name="success">/back/book/show.jsp</result>
+		</action>
+		<!-- 添加图书 -->
+		<action name="addBook" class="com.baizhi.action.BookAction" method="addBook">
+			<interceptor-ref name="adminStack"/>
+			<result name="success" type="redirectAction">selectAllBook</result>
+			<result name="error">/back/book/add.jsp</result>
+		</action>
+		<!-- 根据图书id查询图书 -->
+		<action name="selectBookById" class="com.baizhi.action.BookAction" method="selectBookById">
+			<interceptor-ref name="adminStack"/>
+			<result name="success">/back/book/update.jsp</result>
+		</action>
+		<!-- 修改图书 -->
+		<action name="updateBook" class="com.baizhi.action.BookAction" method="updateBook">
+			<interceptor-ref name="adminStack"/>
+			<result name="success" type="redirectAction">selectAllBook</result>
+			<result name="error">/back/book/update.jsp</result>
+		</action>
+		<!-- 删除图书 -->
+		<action name="deleteBook" class="com.baizhi.action.BookAction" method="deleteBook">
+			<interceptor-ref name="adminStack"/>
+			<result name="success" type="redirectAction">selectAllBook</result>
+		</action>
+		<!-- 模糊查询 -->
+		<action name="selectBookByKey" class="com.baizhi.action.BookAction" method="selectBookByKey">
+			<interceptor-ref name="adminStack"/>
+			<result name="success">/back/book/show.jsp</result>
+		</action>
+	<!-- ===========================前台============================= -->
+		<!-- 前台：获取一级页面的数据 -->
+		<action name="main" class="com.baizhi.action.BookAction" method="main">
+			<result name="success">/front/main/main.jsp</result>
+		</action>
+		<!-- 前台：获取二级页面的数据 -->
+		<action name="second" class="com.baizhi.action.BookAction" method="second">
+			<result name="success">/front/main/book_list.jsp</result>
+		</action>
+		<!-- 前台：图书详情 -->
+		<action name="selectOne" class="com.baizhi.action.BookAction" method="selectOne">
+			<result name="success">/front/main/book_detail.jsp</result>
+		</action>
+	</package>
+
+</struts>

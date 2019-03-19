@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 2.1.7//EN" "struts-2.1.7.dtd" >
+<struts>
+	<package name="user" extends="struts-default" namespace="/user">
+		<interceptors>
+			<interceptor name="AdminInterceptor" class="com.baizhi.interceptor.AdminInterceptor"/>
+			<interceptor-stack name="adminStack">
+				<interceptor-ref name="defaultStack"></interceptor-ref>
+				<interceptor-ref name="AdminInterceptor"></interceptor-ref>
+			</interceptor-stack>
+		</interceptors>
+		
+		<global-results>
+			<!-- <result name="adminLogin">/back/login.jsp</result> -->
+			<result name="adminLogin">/index.jsp</result>
+		</global-results>
+	
+		<!-- 前台：用户注册 -->
+		<action name="regist" class="com.baizhi.action.UserAction" method="regist">
+			<result name="success" type="redirectAction">sendEmailCode</result>
+			<result name="error">/front/user/register_form.jsp</result>
+		</action>	
+		<!-- 前台：验证码 -->
+		<action name="getImage" class="com.baizhi.action.UserAction" method="getImage"></action>
+		<!-- 前台：发送邮箱验证码 -->
+		<action name="sendEmailCode" class="com.baizhi.action.UserAction" method="sendEmailCode">
+			<result name="success">/front/user/verify_form.jsp</result>
+		</action>
+		<!-- 前台：用户激活 -->
+		<action name="active" class="com.baizhi.action.UserAction" method="active">
+			<result name="success">/front/user/register_ok.jsp</result>
+			<result name="error">/front/user/verify_form.jsp</result>
+		</action>
+		<!-- 前台：用户登录 -->
+		<action name="login" class="com.baizhi.action.UserAction" method="login">
+			<!-- 跨包跳转 -->
+			<result name="success" type="redirectAction">
+				<param name="namespace">/book</param>
+				<param name="actionName">main</param>
+			</result>
+			<result name="error">/front/user/login_form.jsp</result>
+		</action>
+		<!-- 前台：退出登录 -->
+		<action name="exit" class="com.baizhi.action.UserAction" method="exit">
+			<result name="success" type="redirect">/front/user/login_form.jsp</result>
+		</action>
+		
+		<!-- ============================================= -->
+		<action name="selectAllUser" class="com.baizhi.action.UserAction" method="selectAllUser">
+			<interceptor-ref name="adminStack"/>
+			<result name="success">/back/user/show.jsp</result>
+		</action>
+		
+		<action name="updateUserStatus" class="com.baizhi.action.UserAction" method="updateUserStatus">	
+			<interceptor-ref name="adminStack"/>
+			<result name="success" type="redirectAction">selectAllUser</result>
+		</action>
+	</package>
+
+</struts>

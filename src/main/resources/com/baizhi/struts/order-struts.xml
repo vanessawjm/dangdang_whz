@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 2.1.7//EN" "struts-2.1.7.dtd" >
+<struts>
+	<package name="order" extends="struts-default" namespace="/order">
+		<interceptors>
+			<interceptor name="AdminInterceptor" class="com.baizhi.interceptor.AdminInterceptor"/>
+			<interceptor name="UserInterceptor" class="com.baizhi.interceptor.UserInterceptor"/>
+			
+			<interceptor-stack name="adminStack">
+				<interceptor-ref name="defaultStack"></interceptor-ref>
+				<interceptor-ref name="AdminInterceptor"></interceptor-ref>
+			</interceptor-stack>
+		
+			<interceptor-stack name="userStack">
+				<interceptor-ref name="defaultStack"></interceptor-ref>
+				<interceptor-ref name="UserInterceptor"></interceptor-ref>
+			</interceptor-stack>
+		</interceptors>
+		
+		
+		<global-results>
+			<!-- <result name="adminLogin">/back/login.jsp</result> -->
+			<result name="adminLogin">/index.jsp</result>
+			<result name="userLogin">/front/user/login_form.jsp</result>
+			<result name="userActive" type="redirectAction">
+				<param name="namespace">/user</param>
+				<param name="actionName">sendEmailCode</param>
+			</result>
+		</global-results>
+		
+		<!-- 前台：添加订单 -->
+		<action name="addOrder" class="com.baizhi.action.OrderAction" method="addOrder">
+			<interceptor-ref name="userStack"/>
+			<result name="success">/front/order/order_ok.jsp</result>
+		</action>
+		<!-- 后台：查询所有的订单 -->
+		<action name="selectAll" class="com.baizhi.action.OrderAction" method="selectAll">	
+			<interceptor-ref name="adminStack"/>
+			<result name="success">/back/order/show.jsp</result>
+		</action>
+		
+		<!-- 后台：查询订单详情 -->
+		<action name="selectOrderDetail" class="com.baizhi.action.OrderAction" method="selectOrderDetail">
+			<interceptor-ref name="adminStack"/>
+			<result name="success">/back/order/detail.jsp</result>
+		</action>
+	</package>
+
+</struts>

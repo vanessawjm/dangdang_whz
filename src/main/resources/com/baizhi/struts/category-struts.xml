@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 2.1.7//EN" "struts-2.1.7.dtd" >
+<struts>
+	<package name="category" extends="struts-default" namespace="/category">
+		<interceptors>
+			<interceptor name="AdminInterceptor" class="com.baizhi.interceptor.AdminInterceptor"/>
+			<interceptor-stack name="adminStack">
+				<interceptor-ref name="defaultStack"></interceptor-ref>
+				<interceptor-ref name="AdminInterceptor"></interceptor-ref>
+			</interceptor-stack>
+		</interceptors>
+		
+		<global-results>
+			<!-- <result name="adminLogin">/back/login.jsp</result> -->
+			<result name="adminLogin">/index.jsp</result>
+		</global-results>
+		
+		
+		<!-- 查询所有的分类 -->	
+		<action name="selectAllCategory" class="com.baizhi.action.CategoryAction" method="selectAllCategory">
+			<interceptor-ref name="adminStack"/>
+			<result name="success">/back/category/show.jsp</result>
+		</action>
+		<!-- 添加分类 -->
+		<action name="addCategory" class="com.baizhi.action.CategoryAction" method="addCategory">
+			<interceptor-ref name="adminStack"/>
+			<result name="success" type="redirectAction">selectAllCategory</result>
+			<!-- <result name="error" type="redirectAction">addCategory</result> -->
+		</action>
+		<!-- 查询所有一级类别 -->
+		<action name="selectAllFirstCategory" class="com.baizhi.action.CategoryAction" method="selectAllFirstCategory">
+			<interceptor-ref name="adminStack"/>
+			<result name="success">/back/category/add-second.jsp</result>
+		</action>
+		<!-- 查询所有二级类别——添加图书时使用 -->
+		<action name="selectAllSecondCategory" class="com.baizhi.action.CategoryAction" method="selectAllSecondCategory">
+			<interceptor-ref name="adminStack"/>
+			<result name="success">/back/book/add.jsp</result>
+		</action>
+		<!-- 后台：删除分类 -->
+		<action name="deleteCategoryById" class="com.baizhi.action.CategoryAction" method="deleteCategoryById">
+			<interceptor-ref name="adminStack"/>
+			<result name="success" type="redirectAction">selectAllCategory</result>
+			<!-- <result name="error" type="redirectAction">selectAllCategory</result> -->
+		</action>
+		
+	</package>
+
+</struts>

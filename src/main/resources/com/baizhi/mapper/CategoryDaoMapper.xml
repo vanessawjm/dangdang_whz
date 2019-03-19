@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.baizhi.dao.CategoryDao">
+  <resultMap type="com.baizhi.entity.Category" id="aa">
+		<id column="sid" property="id"/>
+		<result column="sname" property="name"/>
+		<result column="sparentId" property="parent_id"/>
+		<result column="slevels" property="levels"/>
+
+		<association property="first" javaType="com.baizhi.entity.Category" >
+			<id column="pid" property="id"/>
+			<result column="pname" property="name"/>
+			<result column="pparentId" property="parent_id"/>
+			<result column="plevels" property="levels"/>
+		</association>
+	</resultMap>
+	<!-- 后台：查询所有分类 -->
+	<select id="selectAllCategory" resultMap="aa" resultType="com.baizhi.entity.Category">
+		select 
+			s.id as sid,
+			s.name as sname,
+			s.parent_id as sparentId,
+			s.levels as slevels,
+				p.id as pid,
+				p.name as pname,
+				p.parent_id as pparentId,
+				p.levels as plevels
+		from dd_category s 
+		left join dd_category p 
+		on s.parent_id = p.id
+	</select>
+	<!-- 后台：添加分类 -->
+	<insert id="addCategory" parameterType="com.baizhi.entity.Category">
+		insert into dd_category values(#{id},#{name},#{parent_id,jdbcType=VARCHAR},#{levels})
+	</insert>
+	
+	<!-- 后台：查询所有的一级分类（添加二级类别时使用 -->
+	<select id="selectAllFirstCategory" resultMap="aa">
+	select 
+			s.id as sid,
+			s.name as sname,
+			s.parent_id as sparentId,
+			s.levels as slevels,
+				p.id as pid,
+				p.name as pname,
+				p.parent_id as pparentId,
+				p.levels as plevels
+		from 
+		dd_category s 
+		left join
+		dd_category p 
+		on s.parent_id = p.id
+		where s.levels='1'
+	</select>
+	<!-- 后台：查询所有的二级分类——添加图书时使用 -->
+	<select id="selectAllSecondCategory" resultMap="aa">
+		select 
+			s.id as sid,
+			s.name as sname,
+			s.parent_id as sparentId,
+			s.levels as slevels,
+				p.id as pid,
+				p.name as pname,
+				p.parent_id as pparentId,
+				p.levels as plevels
+		from 
+		dd_category s 
+		left join
+		dd_category p 
+		on s.parent_id = p.id
+		where s.levels='2'
+	</select>
+	<!-- 后台：查询某一级分类下的所有二级分类 -->
+	<select id="selectAllSecondCategoryByFid" parameterType="String" resultType="com.baizhi.entity.Category">
+		select id,name,parent_id as parentId,levels from dd_category where parent_id=#{id}
+	</select>
+	<!-- 后台：根据分类id删除分类 -->
+	<delete id="deleteCategoryById" parameterType="String">
+		delete from dd_category where id = #{id}
+	</delete>
+	
+	<!-- ****************************************************************************************** -->
+	<!-- 前台：查询所有分类 -->
+	<resultMap type="com.baizhi.entity.Category" id="bb">
+		<id column="fid" property="id"/>
+		<result column="fname" property="name"/>
+		<result column="fparentId" property="parent_id"/>
+		<result column="flevels" property="levels"/>
+		<collection property="seconds" ofType="com.baizhi.entity.Category">
+			<id column="sid" property="id"/>
+			<result column="sname" property="name"/>
+			<result column="sparentId" property="parent_id"/>
+			<result column="slevels" property="levels"/>
+		</collection>
+	</resultMap>
+	<select id="selectAll" resultMap="bb">
+		select 
+			f.id as fid,
+			f.name as fname,
+			f.parent_id as fparentId,
+			f.levels as flevels,
+				s.id as sid,
+				s.name as sname,
+				s.parent_id as sparentId,
+				s.levels as slevels
+		from dd_category f inner join dd_category s on f.id = s.parent_id 
+	</select>
+	<!-- 前台：通过一级分类查询旗下所有的二级分类——二级页面使用 -->
+	<select id="selectCategoryByFid" parameterType="String" resultMap="bb">
+		select 
+			f.id as fid,
+			f.name as fname,
+			f.parent_id as fparentId,
+			f.levels as flevels,
+				s.id as sid,
+				s.name as sname,
+				s.parent_id as sparentId,
+				s.levels as slevels
+		from dd_category f left join dd_category s 
+		on f.id = s.parent_id 
+		where f.id = #{fid}
+	</select>
+</mapper>

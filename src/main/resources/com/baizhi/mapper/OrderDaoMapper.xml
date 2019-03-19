@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.baizhi.dao.OrderDao">
+ 	<!-- 前台：添加订单 -->
+	<insert id="addOrder" parameterType="com.baizhi.entity.Order">
+		insert into dd_order values(#{id},#{orderNo},#{total},#{createDate},#{status},#{addressId},#{userId})
+	</insert>
+	<!-- 后台：查询所有的订单 -->
+	<resultMap type="com.baizhi.entity.Order" id="aa">
+		<id column="oid" property="id"/>
+		<result column="oorderNo" property="orderNo"/>
+		<result column="ouserId" property="userId"/>
+		<result column="ototal" property="total"/>
+		<result column="ocreateDate" property="createDate"/>
+		<result column="oaddressId" property="addressId"/>
+		<!-- 订单与地址为一对一关系 一个订单对应一个地址 -->
+		<association property="addre" javaType="com.baizhi.entity.Address">
+			<id column="aid" property="id"/>
+			<result column="aname" property="name"/>
+			<result column="alocal" property="local"/>
+			<result column="azipCode" property="zipCode"/>
+			<result column="aphone" property="phone"/>
+			<result column="auserId" property="userId"/>
+		</association>
+	</resultMap>
+	<select id="selectAll" resultMap="aa">
+		select 
+			o.id as oid,
+			o.order_no as oorderNo,
+			o.user_id as ouserId,
+			o.total as ototal,
+			o.create_date as ocreateDate,
+			o.address_id as oaddressId,
+				a.id as aid,
+				a.name as aname,
+				a.local as alocal,
+				a.zip_code as azipCode,
+				a.phone as aphone,
+				a.user_id as auserId
+		from dd_order o left join dd_address a on o.address_id = a.id 
+	</select>
+	
+	<!-- 后台：查询具体的订单详情，包含其下边所有的订单项 -->
+	<resultMap type="com.baizhi.entity.Order" id="bb">
+		<id column="oid" property="id"/>
+		<result column="oorderNo" property="orderNo"/>
+		<result column="ouserId" property="userId"/>
+		<result column="ototal" property="total"/>
+		<result column="ocreateDate" property="createDate"/>
+	    <result column="ostatus" property="status"/>
+		<result column="oaddressId" property="addressId"/>
+			<!-- 订单与订单项为一对多关系 -->
+		<collection property="items" ofType="com.baizhi.entity.Item">
+			<id column="iid" property="id"/>
+			<result column="ibookId" property="bookId"/>
+			<result column="icount" property="count"/>
+			<result column="icreateDate" property="createDate"/>
+			<result column="iorderId" property="orderId"/>
+		</collection>
+	</resultMap>
+	<select id="selectOrderDetail" parameterType="String" resultMap="bb">
+		select
+			o.id as oid,
+			o.order_no as oorderNo,
+			o.user_id as ouserId,
+			o.total as ototal,
+			o.create_date as ocreateDate,
+			o.status as ostatus,
+			o.address_id as oaddressId,
+				i.id as iid,
+				i.book_id as ibookId,
+				i.count as icount,
+				i.create_date as icreateDate,
+				i.order_id as iorderId
+		from dd_order o left join dd_item i on o.id = i.order_id
+		where o.id=#{id}
+	</select>
+</mapper>
